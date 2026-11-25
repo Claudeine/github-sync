@@ -1,0 +1,5 @@
+{
+  "name": "github-sync",
+  "owner": { "name": "Claudeine" },
+  "plugins": [{ "name": "github-sync", "source": "./" }]
+}
