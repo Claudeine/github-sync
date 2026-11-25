@@ -90,6 +90,14 @@ export const register: Register = on => {
     return next({ ...e, context: [...(e.context ?? []), `github-sync: ${note}`] })
   })
 
+  // Our row goes first in the band, above any other mod's (ponytail's, say).
+  on('ui.render', { component: 'AbovePromptList' }, ($, e, next) => {
+    const mine = e.props.rows.filter(r => r.plugin === 'github-sync')
+    if (mine.length === 0) return next(e)
+    const others = e.props.rows.filter(r => r.plugin !== 'github-sync')
+    return next({ ...e, props: { ...e.props, rows: [...mine, ...others] } })
+  })
+
   on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
     if (e.props.hasSurvey) return next(e)
     const { Box, Button, Text } = $.ui.resolve(e)
