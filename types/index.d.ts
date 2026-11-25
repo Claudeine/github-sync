@@ -6,6 +6,7 @@ declare module 'claude-code' {
       isLinked: boolean
       isNotifOn: boolean
       isAutoPullOn: boolean
+      isAutoPushOn: boolean
       lang: Lang
       pendingNote: string | null
     }

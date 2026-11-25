@@ -18,7 +18,8 @@ You work on the same project on a laptop and a desktop. You forget to send your 
 
 - **Sets up a project in one command.** `/github-sync:setup` checks that the tools are there, then either publishes the current folder to GitHub or fetches a project that already exists there (your second machine).
 - **Fetches automatically.** Each time a conversation opens or resumes in a linked project, the latest version is pulled from GitHub before Claude reads your message.
-- **Sends in one click.** **⬆** saves your changes (a commit with a clear message) and sends them to GitHub, after checking that no secret (keys, passwords, `.env` files, tokens) or very large file goes with them.
+- **Sends in one click.** **⬆** saves your changes (a commit with a clear message) and sends them to GitHub, after checking for very large files and sensitive files (keys, passwords, `.env` files, tokens).
+- **Protects your secrets.** A sensitive file is sent only with your agreement, after the risk is explained, and only to a private repository. Sensitive files kept out by `.gitignore` (which git skips without a word) are flagged too, since they would be missing on the other computer; those you choose to keep off GitHub are not asked about again. On a public repository the send is refused: Claude puts those files in a zip, outside the project and with their folders, to carry by hand and unzip at the root of the project on the other computer. Files over 50 MB get the same treatment (GitHub refuses them over 100 MB). You can declare your own sensitive files by just writing it to Claude, for example "Declare config/api.json as sensitive": the list is kept in `.github-sync-sensitive` (names only) and goes with the project to all your computers. The zip keeps the same name and is made again on each ⬆ when one of those files has changed; you are then told to carry it again.
 - **Never forces anything.** If GitHub holds newer changes, or a conflict appears, nothing is overwritten: you are told what blocks it and how to fix it.
 - **Tells you what happened.** A short notification after each pull and push: time, version, number of files. Failures are always shown, even with notifications off.
 - **Speaks French or English.** The buttons, the notifications and Claude's replies in the commands follow the language you pick.
@@ -28,7 +29,7 @@ You work on the same project on a laptop and a desktop. You forget to send your 
 Above the prompt, in every project linked to GitHub:
 
 ```
-⬇ ⬆   Auto ✓                         Notifications ✓   EN
+⬇ ⬆   ⬇ Auto ✓   ⬆ Auto ×   ⚠︎      Notifications ✓   ⓘ   EN
 ```
 
 | Button | What it does |
@@ -36,7 +37,10 @@ Above the prompt, in every project linked to GitHub:
 | **⬇** | Pull: fetches the latest version from GitHub (`/github-sync:pull`). |
 | **⬆** | Push: saves and sends your changes to GitHub (`/github-sync:push`). |
 | **Notifications ✓ / ×** | On / off. Off: successes are no longer announced, failures still are. |
-| **Auto ✓ / ×** | Automatic pull on / off. Off: nothing is fetched when a conversation opens; ⬇ still works. |
+| **⬇ Auto ✓ / ×** | Automatic pull, on by default. Off: nothing is fetched when a conversation opens; ⬇ still works. |
+| **⬆ Auto ✓ / ×** | Automatic push, off by default. On: after each Claude reply that changes the folder, the changes are saved and sent to GitHub. It never sends a sensitive file (`.env`, key, `wp-config.php`…, or declared with ⚠︎) or a file over 50 MB, not even one already allowed: as soon as such a file has changed, nothing is sent and you are asked to use ⬆. |
+| **⚠︎** | Lists the project's sensitive and large files and what was decided for each; to declare others, just write it to Claude ("Declare config/api.json as sensitive"). |
+| **ⓘ** | Opens a short guide: what each button does, and how to update or uninstall the mod. |
 | **FR / EN** | Shows the current language; press to switch between French and English. |
 
 In a folder that is not linked to GitHub, the bar shows a single button instead: **Set up GitHub sync**.
@@ -74,8 +78,8 @@ Open a conversation in the project folder and press **Set up GitHub sync** (or t
 | Tool | Why | If it is missing |
 | --- | --- | --- |
 | git | does the syncing | Claude gives you the official installer or command for your system |
-| GitHub CLI (`gh`) | talks to GitHub: lists and creates repositories, logs in | Claude points you to the official installer ([cli.github.com](https://cli.github.com)); no Homebrew needed |
-| GitHub login | gives access to your repositories | you run `gh auth login` yourself; Claude never types a password |
+| GitHub CLI (`gh`) | talks to GitHub: lists and creates repositories, logs in | Claude walks you through the official download ([cli.github.com](https://cli.github.com)) step by step: which version fits your Mac (Intel or Apple Silicon), how to install it (including when it is a `.zip` with no installer), where to type the commands, how to check. No Homebrew needed |
+| GitHub login | gives access to your repositories | you run `gh auth login` yourself, Claude tells you the answer to each of its questions; it never types a password |
 | git uses that login | lets git pull and push with it | Claude runs `gh auth setup-git` |
 | your name and email | written on each commit | Claude asks you and sets them |
 
@@ -95,12 +99,14 @@ Commands that need administrator rights (`sudo`) or open a system window are giv
 | `/github-sync:setup` | Checks the tools and links the folder to GitHub. |
 | `/github-sync:pull` | Fetches the latest changes. |
 | `/github-sync:push [message]` | Saves and sends the changes; the message is optional. |
+| `/github-sync:sensitive` | Lists the sensitive and large files (like ⚠︎). To declare a file, change a choice or remake the zip, just write it to Claude. |
 
 ## How it works
 
 - **The automatic pull** runs inside the mod when a conversation opens or resumes, only in a folder whose git repository has a GitHub remote (`origin`). It uses `git pull --ff-only`: it only moves forward, and stops without touching anything if your local work and GitHub's have diverged.
+- **The automatic push** (when on) runs inside the mod, not through Claude, so it does not use your usage limit: the commit message is generic ("Automatic send: N file(s) changed") and it never forces.
 - **Pull and push are Claude commands**, so Claude can explain a refusal in plain words, write the commit message and check for secrets before sending.
-- **Settings are stored in your global git configuration** (`github-sync.notifications`, `github-sync.autopull`, `github-sync.lang`), so they survive restarts and work the same on every system.
+- **Settings are stored in your global git configuration** (`github-sync.notifications`, `github-sync.autopull`, `github-sync.autopush`, `github-sync.lang`), so they survive restarts and work the same on every system.
 - **Nothing runs outside git and GitHub CLI**: no script, no server, no network call of its own.
 
 ## Good habits
@@ -115,6 +121,16 @@ Commands that need administrator rights (`sudo`) or open a system window are giv
 - Claude Code in a terminal and in the Claude desktop app.
 - macOS, Windows and Linux: the mod only relies on git and GitHub CLI. Tested on macOS so far.
 - Works on its own: it does not need any other mod.
+
+## Update
+
+In a Claude conversation, ask "Update the github-sync plugin", or in a terminal:
+
+```bash
+claude plugin update github-sync
+```
+
+Then reopen Claude.
 
 ## Uninstall
 

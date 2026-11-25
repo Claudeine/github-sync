@@ -1,6 +1,6 @@
 {
   "name": "github-sync",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Synchronise un projet entre plusieurs machines via GitHub : installation, pull automatique, commandes pull/push et barre de boutons.",
   "license": "MIT",
   "types": "./types/index.d.ts"
