@@ -45,7 +45,13 @@ Les réglages valent pour tout l'ordinateur, pour tous les projets.
 
 ## Installation
 
-Dans une session Claude Code lancée depuis un terminal (l'onglet Code de l'application de bureau n'accepte pas cette commande) :
+Le plus simple : dans une conversation Claude (application ou terminal), demandez
+
+```
+Installe https://github.com/Claudeine/github-sync
+```
+
+Ou bien, dans une session Claude Code lancée depuis un terminal :
 
 ```
 /plugin install github-sync --marketplace Claudeine/github-sync
@@ -67,8 +73,8 @@ Ouvrez une conversation dans le dossier du projet et cliquez sur **Configurer la
 
 | Outil | À quoi il sert | S'il manque |
 | --- | --- | --- |
-| git | fait la synchronisation | Claude donne la commande adaptée à votre système et l'exécute avec votre accord |
-| GitHub CLI (`gh`) | dialogue avec GitHub : liste et crée les dépôts, connexion | idem |
+| git | fait la synchronisation | Claude vous indique l'installateur officiel ou la commande adaptée à votre système |
+| GitHub CLI (`gh`) | dialogue avec GitHub : liste et crée les dépôts, connexion | Claude vous oriente vers l'installateur officiel ([cli.github.com](https://cli.github.com)) ; Homebrew n'est pas nécessaire |
 | la connexion à GitHub | donne accès à vos dépôts | vous lancez vous-même `gh auth login` ; Claude ne saisit jamais de mot de passe |
 | git utilise cette connexion | permet à git de faire pull et push avec | Claude lance `gh auth setup-git` |
 | votre nom et votre e-mail | inscrits sur chaque commit | Claude vous les demande et les enregistre |
